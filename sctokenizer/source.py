@@ -6,20 +6,28 @@ class Source():
         self.lang = ""
     
     @classmethod
-    def from_file(cls, filepath):
+    def from_file(cls, filepath, lang=None):
         """
             return the Source object
             :rtype: Source
         """
-        pass
+        src = Source()
+        src.lang = lang
+        with open(filepath) as f:
+            src.source_str = f.read()
+        return src
+
 
     @classmethod
-    def from_str(cls, source_str):
+    def from_str(cls, source_str, lang=None):
         """
             return the Source object
             :rtype: Source
         """
-        pass
+        src = Source()
+        src.lang = lang
+        src.source_str = source_str
+        return src
     
     def detect_language(self):
         """
