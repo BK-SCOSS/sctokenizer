@@ -16,9 +16,10 @@ class CppTokenizer(Tokenizer):
         self.IN_NUMBER = 6
         self.keyword_set = keyword_set
         self.operator_set = {
-            '++', '--', '+', '-', '*', '/', '%', '<', '>', '<=', 
-            '>=', '==', '!=', '&&', '||', '!', '&', '|', '<<', '>>', 
-            '~', '^', '=', '+=', '-=', '*=', '/=', '%=', '?', ':'
+            '++', '--', '+', '-', '*', '/', '%', '<', '>', '<=', '^=', 
+            '>=', '==', '!=', '&&', '||', '!', '&', '|', '<<', '>>', '&='
+            '~', '^', '=', '+=', '-=', '*=', '/=', '%=', '|=', '?', ':',
+            '<<=', '>>='
         } # Becareful with ?: operator
         self.linenumber = 1
         self.tokens = []
@@ -28,13 +29,15 @@ class CppTokenizer(Tokenizer):
         pending = ''
         first_no_space = ''
         last_no_space = ''
+        first_no_space_in_macro = ''
         cur = ''
         prev = ''
         i = 0
         while i < len(source_str):
             prev = cur
             cur = source_str[i]
-            next = ''
+            # print ('this cur = ' + cur)
+            # next = ''
             if i < len(source_str) - 1:
                 next = source_str[i+1]
             if prev == self.LF:
@@ -64,21 +67,33 @@ class CppTokenizer(Tokenizer):
                 if cur == self.LF:
                     state = self.REGULAR
             elif state == self.IN_MACRO:
+                # Get first char after # in marco
+                if cur != ' ' and cur != self.TAB and first_no_space_in_macro == '':
+                    first_no_space_in_macro = cur
                 # Check end of marco
                 if cur == self.LF and last_no_space != '\\':
                     state = self.REGULAR
+                    first_no_space_in_macro = ''
+
                 # Can handle:
                 # include <bits/stdc++.h>
-                # include <stdio.h>
-                # NEED TO HANDLE macro such as:
                 # define circleArea(r) (3.1415*(r)*(r))
                 # define PI 3.1415
-                if self.is_alpha(cur) or cur == '/' or cur == '.' or cur == '+':
+                # handle #define, undef and #include
+                if first_no_space_in_macro == 'd' or first_no_space_in_macro == 'u':
+                    state = self.REGULAR
+                    if self.is_alpha(cur):
+                        pending += cur
+                elif self.is_alpha(cur) or cur == '/' or cur == '.' or cur == '+' or cur == '"':
                     pending += cur
+
                 else: # cur is <, >, ), number...
                     self.add_pending(pending, TokenType.IDENTIFIER)
                     pending = ''
                     self.add_pending(cur, TokenType.SPECIAL_SYMBOL)
+
+                # print('pending = ' + pending)
+                
             elif state == self.IN_STRING:
                 # Check end of string
                 if cur == '"' and prev != '\\':
@@ -108,10 +123,12 @@ class CppTokenizer(Tokenizer):
                 if (cur >= '0' and cur <= '9') or \
                     cur == '.' or cur == 'E' or cur == 'e':
                     pending += cur
+                    i += 1
                     continue
                 if (cur == '-' or cur == '+') and \
                     (prev == 'E' or prev == 'e'):
                     pending += cur
+                    i += 1
                     continue
                 self.add_pending(pending, TokenType.CONSTANT)
                 pending = ''
@@ -150,7 +167,7 @@ class CppTokenizer(Tokenizer):
                     state = self.IN_MACRO
                     self.add_pending(pending, TokenType.IDENTIFIER)
                     pending = ''
-                    # self.add_pending('#', TokenType.SPECIAL_SYMBOL)
+                    self.add_pending('#', TokenType.SPECIAL_SYMBOL)
                 elif cur >= '0' and cur <= '9':
                     state = self.IN_NUMBER
                     self.add_pending(pending, TokenType.IDENTIFIER)
@@ -170,6 +187,7 @@ class CppTokenizer(Tokenizer):
             i += 1
         self.add_pending(pending, TokenType.SPECIAL_SYMBOL) # is Cpp always ends with } ?
         self.compact_operators()
+        self.compact_operators()
         return self.tokens
 
     def add_pending(self, pending, token_type):
@@ -187,5 +205,28 @@ class CppTokenizer(Tokenizer):
                 cur == '_' or ord(cur) > 127
 
     def compact_operators(self):
-        pass
+        correct = []
+        cur = None
+        for next in self.tokens:
+            if cur:
+                if cur.token_type == TokenType.OPERATOR and \
+                    next.token_type == TokenType.OPERATOR and \
+                    cur.token_value not in '()[]{};' and \
+                    next.token_value not in '()[]{};':
+                    cur.token_value += next.token_value
+                    next = None
+                correct.append(cur)
+            cur = next
+        if cur:
+            correct.append(cur)
+        self.tokens = correct
+                    
+    # def correct_operators():
+    #     # A Function to correct those operators which is similar to special symbols
+    #     # such as: * (in a*b or int *a) or << (in a << 2 or cout << a) or & (in a = 3 & 2 or scanf("%d", &a))
+    #     # But are * and << operators?
+    #     # References:
+    #     # https://www3.ntu.edu.sg/home/ehchua/programming/cpp/cp4_PointerReference.html
+    #     # http://www.cplusplus.com/reference/istream/istream/operator%3E%3E/
+    #     pass
 
