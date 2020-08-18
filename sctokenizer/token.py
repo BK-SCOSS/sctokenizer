@@ -10,14 +10,15 @@ class TokenType(enum.Enum):
     OTHER = 6 
 
 class Token():
-    def __init__(self, token_value, token_type, line): # is line necessary?
+    def __init__(self, token_value, token_type, line, column): # is line necessary?
         self.token_value = token_value
         self.token_type = token_type
         self.line = line
+        self.column = column
 
     def __str__(self):
-        return 'Token {} is {} at line {}'.\
-            format(self.token_value, self.token_type, self.line)
+        return '({}, {}, {}, {})'.\
+            format(self.token_value, self.token_type, self.line, self.column)
 
     
     
