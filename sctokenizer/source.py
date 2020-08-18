@@ -1,9 +1,9 @@
 from __future__ import absolute_import
 
 class Source():
-    def __init__(self):
-        self.source_str = ""
-        self.lang = ""
+    def __init__(self, source_str, lang=None):
+        self.source_str = source_str
+        self.lang = lang
     
     @classmethod
     def from_file(cls, filepath, lang=None):
@@ -11,11 +11,11 @@ class Source():
             return the Source object
             :rtype: Source
         """
-        src = Source()
-        src.lang = lang
         with open(filepath) as f:
-            src.source_str = f.read()
-        return src
+            source_str = f.read()
+        if lang is None:
+            lang = cls.detect_language(source_str)
+        return Source(source_str, lang)
 
 
     @classmethod
@@ -24,14 +24,14 @@ class Source():
             return the Source object
             :rtype: Source
         """
-        src = Source()
-        src.lang = lang
-        src.source_str = source_str
-        return src
+        if lang is None:
+            lang = cls.detect_language(source_str)
+        return Source(source_str, lang)
     
-    def detect_language(self):
+    @classmethod
+    def detect_language(cls, source_str):
         """
             detect languge of source code
             :rtype: str
         """
-        pass
+        return None
