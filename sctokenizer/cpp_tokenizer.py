@@ -226,7 +226,13 @@ class CppTokenizer(Tokenizer):
                             self.add_pending(cur, TokenType.SPECIAL_SYMBOL, len_lines, t)
                         pending = ''
             i += 1
-        self.add_pending(pending, TokenType.SPECIAL_SYMBOL, len_lines, t) # is Cpp always ends with } ?
+        # is Cpp always ends with } ?
+        if len(cur) > 1:
+            self.add_pending(pending, TokenType.SPECIAL_SYMBOL, len_lines, t) 
+        elif pending in self.operator_set:
+            self.add_pending(pending, TokenType.OPERATOR, len_lines, t)
+        else:
+            self.add_pending(pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
         self.compact_operators()
         self.compact_operators()
         return self.tokens
