@@ -7,14 +7,17 @@ using namespace std;
 
 int main()
 {
+    /*
     int n;
     string a = "sfdadf\"\"asldkfasd";
-    char b1en1='1';
+    char b1e_n1='1';
     a <<= 1;
     a = 1 > 2 ? 1 : 2;
     cin >> n;
     for (int i = 0; i < n; i++)
         cout << i << " ";
+    cout << endl;
+    */ int a = 123;
     cout << endl;
 }
 

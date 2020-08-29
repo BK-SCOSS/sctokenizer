@@ -32,7 +32,6 @@ class CppTokenizer(Tokenizer):
         last_no_space = ''
         first_no_space_in_macro = ''
         first_no_space_in_word = ''
-        # first_idx_in_word = 0
         cur = ''
         prev = ''
         i = 0
@@ -66,8 +65,9 @@ class CppTokenizer(Tokenizer):
                 # Check end of block comment
                 if cur == '*':
                     if next == '/':
+                        self.colnumber = i
+                        self.add_pending('*/', TokenType.IDENTIFIER, len_lines, t)
                         i += 1
-                        # self.colnumber += 1
                         state = self.REGULAR
                         continue
             elif state == self.IN_LINECOMMENT:
@@ -170,18 +170,18 @@ class CppTokenizer(Tokenizer):
                         self.add_pending(pending, TokenType.IDENTIFIER, len_lines, t)
                         pending = ''
                         first_no_space_in_word = ''
-                        i += 1
                         self.colnumber = i
                         self.add_pending('/*', TokenType.SPECIAL_SYMBOL, len_lines, t)
+                        i += 1
                         continue
                     if next == '/': # Begin line comment
                         state = self.IN_LINECOMMENT
                         self.add_pending(pending, TokenType.IDENTIFIER, len_lines, t)
                         pending = ''
                         first_no_space_in_word = ''
-                        i += 1
                         self.colnumber = i
                         self.add_pending('//', TokenType.SPECIAL_SYMBOL, len_lines, t)
+                        i += 1
                         continue
                 elif cur == '"':
                     state = self.IN_STRING
@@ -257,13 +257,18 @@ class CppTokenizer(Tokenizer):
         correct = []
         cur = None
         for next in self.tokens:
+            # try:
+            #     print (cur.token_value ,next.token_value)
+            # except:
+            #     print (None)
             if cur:
                 if cur.token_type == TokenType.OPERATOR and \
                     next.token_type == TokenType.OPERATOR and \
                     cur.token_value not in '()[]{};' and \
                     next.token_value not in '()[]{};':
-                    cur.token_value += next.token_value
-                    next = None
+                    if cur.token_value != '<' or (cur.token_value == '<' and next.token_value != '>'):
+                        cur.token_value += next.token_value
+                        next = None
                 correct.append(cur)
             cur = next
         if cur:
