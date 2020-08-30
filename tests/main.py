@@ -6,7 +6,8 @@ sys.path.append(os.path.join(WORKING_DIR, '../../sctokenizer'))
 import sctokenizer
 
 # tokens = sctokenizer.tokenize_file(filepath='tests/data/a.cpp', lang='cpp')
-tokens = sctokenizer.tokenize_file(filepath='tests/data/java_a.java', lang='java')
+# tokens = sctokenizer.tokenize_file(filepath='tests/data/java_a.java', lang='java')
+tokens = sctokenizer.tokenize_file(filepath='tests/data/python_a.py', lang='py')
 for token in tokens:
     print(token)
 

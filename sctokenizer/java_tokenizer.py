@@ -15,7 +15,6 @@ class JavaTokenizer(CppTokenizer):
         state = self.REGULAR
         pending = ''
         first_no_space = ''
-        last_no_space = ''
         first_no_space_in_word = ''
         cur = ''
         prev = ''
@@ -27,25 +26,32 @@ class JavaTokenizer(CppTokenizer):
             if i < len(source_str) - 1:
                 next = source_str[i+1]
             if prev == self.LF:
-                last_no_space = ''
                 first_no_space = ''
+                first_no_space_in_word = ''
                 self.linenumber += 1
                 t += 1
             if cur == self.CR:
                 if next == self.LF:
                     continue
-                else: 
+                else: # Not sure about this part
+                    # first_no_space = ''
+                    # first_no_space_in_word = ''
                     self.linenumber += 1
                     t += 1
                     cur = self.LF
             if cur != ' ' and cur != self.TAB:
-                if cur != self.LF:
-                    last_no_space = cur
                 if first_no_space == '':
                     first_no_space = cur
                 if first_no_space_in_word == '':
                     first_no_space_in_word = cur
                     self.colnumber = i
+            # print('cur = ', cur)
+            # print('first_no_space_in_word = ', first_no_space_in_word)
+            # print('t = ', t)
+            # print('column = ', self.colnumber)
+            # if cur == ';':
+            #     import sys
+            #     sys.exit()
             if state == self.IN_COMMENT:
                 # Check end of block comment
                 if cur == '*':
@@ -56,7 +62,7 @@ class JavaTokenizer(CppTokenizer):
                         state = self.REGULAR
                         continue
             elif state == self.IN_LINECOMMENT:
-                # Check end of block comment
+                # Check end of line comment
                 if cur == self.LF:
                     state = self.REGULAR
             elif state == self.IN_STRING:
@@ -160,8 +166,8 @@ class JavaTokenizer(CppTokenizer):
                         pending = ''
             i += 1
         # is Java always ends with } ?
-        if len(cur) > 1:
-            self.add_pending(pending, TokenType.SPECIAL_SYMBOL, len_lines, t) 
+        if len(cur) > 1 or self.is_alpha(cur):
+            self.add_pending(pending, TokenType.IDENTIFIER, len_lines, t) 
         elif pending in self.operator_set:
             self.add_pending(pending, TokenType.OPERATOR, len_lines, t)
         else:

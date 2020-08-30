@@ -44,12 +44,13 @@ class CppTokenizer(Tokenizer):
             if prev == self.LF:
                 last_no_space = ''
                 first_no_space = ''
+                first_no_space_in_word = ''
                 self.linenumber += 1
                 t += 1
             if cur == self.CR:
                 if next == self.LF:
                     continue
-                else: 
+                else: # Not sure about this part
                     self.linenumber += 1
                     t += 1
                     cur = self.LF
@@ -71,7 +72,7 @@ class CppTokenizer(Tokenizer):
                         state = self.REGULAR
                         continue
             elif state == self.IN_LINECOMMENT:
-                # Check end of block comment
+                # Check end of line comment
                 if cur == self.LF:
                     state = self.REGULAR
             elif state == self.IN_MACRO:
@@ -227,8 +228,8 @@ class CppTokenizer(Tokenizer):
                         pending = ''
             i += 1
         # is Cpp always ends with } ?
-        if len(cur) > 1:
-            self.add_pending(pending, TokenType.SPECIAL_SYMBOL, len_lines, t) 
+        if len(cur) > 1 or self.is_alpha(cur):
+            self.add_pending(pending, TokenType.IDENTIFIER, len_lines, t) 
         elif pending in self.operator_set:
             self.add_pending(pending, TokenType.OPERATOR, len_lines, t)
         else:
