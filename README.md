@@ -1,7 +1,7 @@
 # sctokenizer
 A Source Code Tokenizer
 
-Support those languages: ```C, C++, Java, Python```
+Supports those languages: ```C, C++, Java, Python```
 
 ## How to install
 Clone this project and cd to the folder of this project and run this command:
@@ -14,7 +14,7 @@ Use ```sctokenizer```:
 ```python
 import sctokenizer
 
-tokens = sctokenizer.tokenize_file(filepath='tests/data/a.cpp', lang='cpp')
+tokens = sctokenizer.tokenize_file(filepath='tests/data/hello_world.cpp', lang='cpp')
 for token in tokens:
     print(token)
 ```
@@ -23,8 +23,8 @@ Or create new ```CppTokenizer```:
 ```python
 from sctokenizer import CppTokenizer
 
-tokenizer = CppTokenizer()
-with open('tests/data/a.cpp') as f:
+tokenizer = CppTokenizer() # this object can be used for multiple source files
+with open('tests/data/hello_world.cpp') as f:
 	source = f.read()
 	tokens = tokenizer.tokenize(source)
 	print(tokens)
@@ -33,20 +33,29 @@ with open('tests/data/a.cpp') as f:
 Results is a ```list``` of ```Token```. Each ```Token``` has four attributes including ```token_value, token_type, line, column```:
 ```
 (#, TokenType.SPECIAL_SYMBOL, (1, 1))
-(include, TokenType.KEYWORD, (1, 5))
-(<, TokenType.OPERATOR, (1, 13))
-(bits/stdc++.h, TokenType.IDENTIFIER, (1, 14))
-(>, TokenType.OPERATOR, (1, 27))
-(#, TokenType.SPECIAL_SYMBOL, (2, 1))
-(define, TokenType.KEYWORD, (2, 3))
-(circleArea, TokenType.IDENTIFIER, (2, 10))
-((, TokenType.SPECIAL_SYMBOL, (2, 20))
-(r, TokenType.IDENTIFIER, (2, 21))
-(), TokenType.SPECIAL_SYMBOL, (2, 22))
-((, TokenType.SPECIAL_SYMBOL, (2, 24))
-(3.1415, TokenType.CONSTANT, (2, 25))
-(*, TokenType.OPERATOR, (2, 31))
-...
+(include, TokenType.KEYWORD, (1, 2))
+(<, TokenType.OPERATOR, (1, 10))
+(bits/stdc++.h, TokenType.IDENTIFIER, (1, 11))
+(>, TokenType.OPERATOR, (1, 24))
+(using, TokenType.KEYWORD, (3, 1))
+(namespace, TokenType.KEYWORD, (3, 7))
+(std, TokenType.IDENTIFIER, (3, 17))
+(;, TokenType.SPECIAL_SYMBOL, (3, 20))
+(int, TokenType.KEYWORD, (5, 1))
+(main, TokenType.IDENTIFIER, (5, 5))
+((, TokenType.SPECIAL_SYMBOL, (5, 9))
+(), TokenType.SPECIAL_SYMBOL, (5, 10))
+({, TokenType.SPECIAL_SYMBOL, (6, 1))
+(cout, TokenType.IDENTIFIER, (7, 5))
+(<<, TokenType.OPERATOR, (7, 11))
+(", TokenType.SPECIAL_SYMBOL, (7, 13))
+(Hello World, TokenType.STRING, (7, 14))
+(", TokenType.SPECIAL_SYMBOL, (7, 25))
+(;, TokenType.SPECIAL_SYMBOL, (7, 26))
+(return, TokenType.KEYWORD, (8, 5))
+(0, TokenType.CONSTANT, (8, 12))
+(;, TokenType.SPECIAL_SYMBOL, (8, 13))
+(}, TokenType.SPECIAL_SYMBOL, (9, 1))
 ```
 
 ## TODO
