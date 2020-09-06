@@ -198,9 +198,16 @@ class CppTokenizer(Tokenizer):
                         pending = cur
                     else:
                         pending += cur
-                elif self.is_alpha(cur):
+                elif self.is_alpha(cur): 
                     pending += cur
-                else: # cur = + - * / , ; ...
+                elif cur in self.operator_set: # cur = + - * / , ...
+                    if pending in self.operator_set and (pending+cur) in self.operator_set:
+                        pending += cur
+                    else:
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        pending = cur
+                        first_no_space_in_word = ''
+                else: # cur = ;, ', space
                     self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
                     pending = ''
                     first_no_space_in_word = ''
@@ -214,16 +221,6 @@ class CppTokenizer(Tokenizer):
             self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t) 
         else:
             self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
-        tokens = self.compact_operators(tokens)
-        tokens = self.compact_operators(tokens)
         return tokens
 
-    # def correct_operators():
-    #     # A Function to correct those operators which is similar to special symbols
-    #     # such as: * (in a*b or int *a) or << (in a << 2 or cout << a) or & (in a = 3 & 2 or scanf("%d", &a))
-    #     # But are * and << operators?
-    #     # References:
-    #     # https://www3.ntu.edu.sg/home/ehchua/programming/cpp/cp4_PointerReference.html
-    #     # http://www.cplusplus.com/reference/istream/istream/operator%3E%3E/
-    #     pass
 
