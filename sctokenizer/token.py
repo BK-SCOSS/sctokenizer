@@ -7,7 +7,8 @@ class TokenType(enum.Enum):
     STRING = 3
     SPECIAL_SYMBOL = 4
     OPERATOR = 5
-    OTHER = 6 
+    COMMENT_SYMBOL = 6
+    OTHER = 7
 
 class Token():
     def __init__(self, token_value, token_type, line, column):
