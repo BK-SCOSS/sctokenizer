@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from sctokenizer.cpp_tokenizer import CppTokenizer
-from sctokenizer.aset.c_keywords import keyword_set
+from sctokenizer.assets.c_keywords import keyword_set
 # from sctokenizer.aset.c_operator_set import c_operator_set
 from sctokenizer.token import TokenType, Token
 

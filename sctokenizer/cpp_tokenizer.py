@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 
 from sctokenizer.tokenizer import Tokenizer
-from sctokenizer.aset.cpp_keywords import keyword_set
-from sctokenizer.aset.cpp_operator_set import cpp_operator_set
+from sctokenizer.assets.cpp_keywords import keyword_set
+from sctokenizer.assets.cpp_operators import cpp_operator_set
 from sctokenizer.token import TokenType, Token
 
 class CppTokenizer(Tokenizer):
