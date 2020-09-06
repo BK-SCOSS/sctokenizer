@@ -4,6 +4,7 @@ A Source Code Tokenizer
 Supports those languages: ```C, C++, Java, Python```
 
 ## How to install
+
 ```
 pip install git+https://github.com/ngocjr7/sctokenizer
 ```
@@ -24,9 +25,20 @@ from sctokenizer import CppTokenizer
 
 tokenizer = CppTokenizer() # this object can be used for multiple source files
 with open('tests/data/hello_world.cpp') as f:
-	source = f.read()
-	tokens = tokenizer.tokenize(source)
-	print(tokens)
+    source = f.read()
+    tokens = tokenizer.tokenize(source)
+    for token in tokens:
+        print(token)
+```
+
+Or better solution:
+```python
+from sctokenizer import Source
+
+src = Source.from_file('tests/data/hello_world.cpp', lang='cpp')
+tokens = src.tokenize()
+for token in tokens:
+    print(token)
 ```
 
 Results is a ```list``` of ```Token```. Each ```Token``` has four attributes including ```token_value, token_type, line, column```:
