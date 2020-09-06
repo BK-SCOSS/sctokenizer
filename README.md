@@ -4,9 +4,8 @@ A Source Code Tokenizer
 Supports those languages: ```C, C++, Java, Python```
 
 ## How to install
-Clone this project and cd to the folder of this project and run this command:
 ```
-pip install -e .
+pip install git+https://github.com/ngocjr7/sctokenizer
 ```
 
 ## How to use
