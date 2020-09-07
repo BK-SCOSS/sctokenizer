@@ -1,14 +1,14 @@
 from __future__ import absolute_import
 
 from sctokenizer.tokenizer import Tokenizer, TokenizerState
-from sctokenizer.assets.cpp_keywords import keyword_set
+from sctokenizer.assets.cpp_keywords import cpp_keyword_set
 from sctokenizer.assets.cpp_operators import cpp_operator_set
 from sctokenizer.token import TokenType, Token
 
 class CppTokenizer(Tokenizer):
     def __init__(self):
         super().__init__()
-        self.keyword_set = keyword_set
+        self.keyword_set = cpp_keyword_set
         self.operator_set = cpp_operator_set
 
     def tokenize(self, source_str):
@@ -50,6 +50,7 @@ class CppTokenizer(Tokenizer):
                 if first_no_space_in_word == '':
                     first_no_space_in_word = cur
                     self.colnumber = i
+
             if state == TokenizerState.IN_COMMENT:
                 # Check end of block comment
                 if cur == '*':
@@ -59,10 +60,12 @@ class CppTokenizer(Tokenizer):
                         i += 1
                         state = TokenizerState.REGULAR
                         continue
+
             elif state == TokenizerState.IN_LINECOMMENT:
                 # Check end of line comment
                 if cur == '\n':
                     state = TokenizerState.REGULAR
+
             elif state == TokenizerState.IN_MACRO:
                 # Get first char after # in marco
                 if cur == ' ' or cur == '\t':
@@ -88,6 +91,7 @@ class CppTokenizer(Tokenizer):
                     first_no_space_in_macro = ''
                 if self.is_alpha(cur):
                     pending += cur
+
             elif state == TokenizerState.IN_INCLUDE:
                 if cur == '<' or cur == '"':
                     state = TokenizerState.IN_INCLUDE_HEADER
@@ -98,6 +102,7 @@ class CppTokenizer(Tokenizer):
                     self.add_pending(tokens, cur, TokenType.SPECIAL_SYMBOL, len_lines, t)
                 elif cur != ' ' and cur != '\t':
                     pending += cur
+
             elif state == TokenizerState.IN_INCLUDE_HEADER:
                 if cur == '>' or cur == '"':
                     state = TokenizerState.REGULAR
@@ -108,6 +113,7 @@ class CppTokenizer(Tokenizer):
                     self.add_pending(tokens, cur, TokenType.SPECIAL_SYMBOL, len_lines, t)
                 elif cur != ' ' and cur != '\t':
                     pending += cur
+
             elif state == TokenizerState.IN_STRING:
                 # Check end of string
                 if cur == '"' and prev != '\\':
@@ -119,6 +125,7 @@ class CppTokenizer(Tokenizer):
                     self.add_pending(tokens, cur, TokenType.SPECIAL_SYMBOL, len_lines, t)
                 else:
                     pending += cur
+
             elif state == TokenizerState.IN_CHAR:
                 # Check end of char
                 if cur == "'" and prev != '\\':
@@ -130,26 +137,36 @@ class CppTokenizer(Tokenizer):
                     self.add_pending(tokens, cur, TokenType.SPECIAL_SYMBOL, len_lines, t)
                 else:
                     pending += cur
+
             elif state == TokenizerState.IN_NUMBER:
                 if (cur >= '0' and cur <= '9') or \
                     cur == '.' or cur == 'E' or cur == 'e':
                     pending += cur
                     i += 1
-                    # self.colnumber += 1
                     continue
                 if (cur == '-' or cur == '+') and \
                     (prev == 'E' or prev == 'e'):
                     pending += cur
                     i += 1
-                    # self.colnumber += 1
                     continue
                 self.add_pending(tokens, pending, TokenType.CONSTANT, len_lines, t)
-                pending = ''
-                first_no_space_in_word = ''
+                first_no_space_in_word = cur
+                pending = cur
                 self.colnumber = i
-                self.add_pending(tokens, cur, TokenType.SPECIAL_SYMBOL, len_lines, t)
                 state = TokenizerState.REGULAR 
+
             elif state == TokenizerState.REGULAR:
+                if pending in self.operator_set:
+                    if (pending + cur) in self.operator_set:
+                        pending += cur
+                        i += 1
+                        continue
+                    else:
+                        self.add_pending(tokens, pending, TokenType.OPERATOR, len_lines, t)
+                        pending = ''
+                        first_no_space_in_word = cur
+                        self.colnumber = i
+                
                 if cur == '/':
                     if next == '*': # Begin block comments
                         state = TokenizerState.IN_COMMENT
@@ -194,6 +211,7 @@ class CppTokenizer(Tokenizer):
                     if first_no_space_in_word == cur:
                         state = TokenizerState.IN_NUMBER
                         self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        self.colnumber = i
                         # first_no_space_in_word = ''
                         pending = cur
                     else:
@@ -201,12 +219,10 @@ class CppTokenizer(Tokenizer):
                 elif self.is_alpha(cur): 
                     pending += cur
                 elif cur in self.operator_set: # cur = + - * / , ...
-                    if pending in self.operator_set and (pending+cur) in self.operator_set:
-                        pending += cur
-                    else:
-                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
-                        pending = cur
-                        first_no_space_in_word = ''
+                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    pending = cur
+                    first_no_space_in_word = cur
+                    self.colnumber = i
                 else: # cur = ;, ', space
                     self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
                     pending = ''
@@ -214,7 +230,6 @@ class CppTokenizer(Tokenizer):
                     if cur > ' ': 
                         self.colnumber = i
                         self.add_pending(tokens, cur, TokenType.SPECIAL_SYMBOL, len_lines, t)
-                        pending = ''
             i += 1
         # is Cpp always ends with } ?
         if len(cur) > 1 or self.is_alpha(cur):

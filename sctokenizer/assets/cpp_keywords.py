@@ -1,4 +1,4 @@
-keyword_set = {
+cpp_keyword_set = {
     'alignas',
     'alignof',
     'and',

@@ -21,6 +21,9 @@ def hash_file(filename):
 
        # loop till the end of the file
        chunk = 0
+       a = 2+++3
+       a = 2 --- 3
+       a **= 2
        while chunk != b'':
            # read only 1024 bytes at a time
            chunk = file.read(1024)

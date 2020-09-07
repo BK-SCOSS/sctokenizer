@@ -13,7 +13,8 @@ class Main {
     System.out.println("HashMap: " + numbers);
 
     // value whose key is to be searched
-    Integer value = 3;
+    Integer value=3+-2;
+    Integer value2 = 3 +- 2;
 
     // iterate each entry of hashmap
     for(Entry<String, Integer> entry: numbers.entrySet()) {
