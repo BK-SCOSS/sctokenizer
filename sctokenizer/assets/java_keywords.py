@@ -1,4 +1,4 @@
-keyword_set = {
+java_keyword_set = {
     'abstract',
     'assert',
     'boolean',

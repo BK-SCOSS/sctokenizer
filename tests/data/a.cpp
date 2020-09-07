@@ -1,3 +1,5 @@
+int a = 1;
+
 #   include <bits/stdc++.h> 
 # define circleArea(r) (3.1415*(r)*(r))
 #   include <iostream>
@@ -11,9 +13,9 @@ int main()
     int n;
     string a = "sfdadf\"\"asldkfasd";
     char b1e_n1='1';
-    a <<= 1;
+    a<<=1;
     a = 1 > 2 ? 1 : 2;
-    cin >> n;
+    std::cin >> n;
     int x[n];
     int b = a+-2;
     int c = sizeof(x);
@@ -21,7 +23,7 @@ int main()
         cout << i << " ";
     cout << endl;
     int a = 123;
-    cout << endl;
+    std::cout << endl;
 }
 
-// ok 
+

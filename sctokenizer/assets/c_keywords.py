@@ -1,4 +1,4 @@
-keyword_set = {
+c_keyword_set = {
     'auto',
     'break',
     'case',

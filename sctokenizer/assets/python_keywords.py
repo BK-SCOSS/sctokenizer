@@ -1,4 +1,4 @@
-keyword_set = {
+python_keyword_set = {
     'and',
     'as',
     'assert',
