@@ -4,3 +4,4 @@ from .tokenizer import Tokenizer
 from .cpp_tokenizer import CppTokenizer
 from .source import Source
 from .main import tokenize_file, tokenize_str
+from .similarity import Similarity

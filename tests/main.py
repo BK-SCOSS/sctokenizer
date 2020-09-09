@@ -11,14 +11,14 @@ sys.path.append(os.path.join(WORKING_DIR, '../../sctokenizer'))
 # for token in tokens:
 #     print(token)
 
-from sctokenizer import CppTokenizer
+# from sctokenizer import CppTokenizer
 
-tokenizer = CppTokenizer() # this object can be used for multiple source files
-with open('tests/data/hello_world.cpp') as f:
-	source = f.read()
-	tokens = tokenizer.tokenize(source)
-	for token in tokens:
-		print(token)
+# tokenizer = CppTokenizer() # this object can be used for multiple source files
+# with open('tests/data/hello_world.cpp') as f:
+# 	source = f.read()
+# 	tokens = tokenizer.tokenize(source)
+# 	for token in tokens:
+# 		print(token)
 
 # from sctokenizer import Source
 
@@ -26,3 +26,13 @@ with open('tests/data/hello_world.cpp') as f:
 # tokens = src.tokenize()
 # for token in tokens:
 #     print(token)
+
+# test similarity
+from sctokenizer import Similarity
+simi = Similarity()
+sim = simi.get_similarity1("tests/data/a.cpp", "tests/data/b.cpp")
+print("sim1",sim)
+sim = simi.get_similarity2("tests/data/a.cpp", "tests/data/b.cpp")
+print("sim2",sim)
+sim = simi.get_similarity3("tests/data/a.cpp", "tests/data/b.cpp")
+print("sim3",sim)
