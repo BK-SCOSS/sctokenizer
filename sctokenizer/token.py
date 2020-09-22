@@ -25,6 +25,8 @@ class Token():
         return '({}, {}, {})'.\
             format(self.token_value, self.token_type, self.position)
 
+    def __repr__(self):
+        return self.__str__()
     
     
 
