@@ -5,16 +5,27 @@ from sctokenizer.cpp_tokenizer import CppTokenizer
 from sctokenizer.java_tokenizer import JavaTokenizer
 from sctokenizer.python_tokenizer import PythonTokenizer
 
+import os
+
+LANG_MAP = {
+    'c': 'c',
+    'cpp': 'cpp',
+    'cc': 'cpp',
+    'java': 'java',
+    'py': 'python'
+}
+
 class Source():
-    def __init__(self, source_str, lang=None):
+    def __init__(self, source_str, lang=None, name=None):
         self.source_str = source_str
         if lang is None:
             self.lang = self.detect_language(self.source_str)
         else:
             self.lang = lang
+        self.name = name
     
     @classmethod
-    def from_file(cls, filepath, lang=None):
+    def from_file(cls, filepath, lang=None, name=None):
         """
             return the Source object
             :rtype: Source
@@ -22,8 +33,11 @@ class Source():
         with open(filepath) as f:
             source_str = f.read()
         if lang is None:
-            lang = cls.detect_language(source_str)
-        return Source(source_str, lang)
+            ext = os.path.splitext(filepath)[1][1:]
+            lang = LANG_MAP[ext]
+        if name is None:
+            name = filepath
+        return Source(source_str, lang, name)
 
 
     @classmethod
@@ -46,7 +60,7 @@ class Source():
         elif self.lang == 'java':
             java_tokenizer = JavaTokenizer()
             return java_tokenizer.tokenize(self.source_str)
-        elif self.lang == 'py':
+        elif self.lang == 'python':
             python_tokenizer = PythonTokenizer()
             return python_tokenizer.tokenize(self.source_str)
         else:

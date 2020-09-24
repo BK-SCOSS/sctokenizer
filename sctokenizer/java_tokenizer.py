@@ -12,6 +12,8 @@ class JavaTokenizer(Tokenizer):
         self.operator_set = java_operator_set
 
     def tokenize(self, source_str):
+        if len(source_str) < 1:
+            return []
         len_lines = [len(x) for x in source_str.split('\n')]
         tokens = []
         state = TokenizerState.REGULAR

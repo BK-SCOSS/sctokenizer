@@ -20,7 +20,7 @@ with open('tests/data/test_php.php') as f:
 	for token in tokens:
 		print(token)
 
-# from sctokenizer import Source
+from sctokenizer import Source
 
 # src = Source.from_file('tests/data/âa.cpp', lang='cpp')
 # tokens = src.tokenize()
