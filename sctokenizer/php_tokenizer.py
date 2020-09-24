@@ -6,6 +6,7 @@ from sctokenizer.assets.php_operators import php_operator_set
 from sctokenizer.token import TokenType, Token
 
 class PhpTokenizer(Tokenizer):
+    
     def __init__(self):
         super().__init__()
         self.keyword_set = php_keyword_set
