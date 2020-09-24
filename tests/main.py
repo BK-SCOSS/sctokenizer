@@ -11,28 +11,19 @@ sys.path.append(os.path.join(WORKING_DIR, '../../sctokenizer'))
 # for token in tokens:
 #     print(token)
 
-# from sctokenizer import CppTokenizer
-
-# tokenizer = CppTokenizer() # this object can be used for multiple source files
-# with open('tests/data/hello_world.cpp') as f:
-# 	source = f.read()
-# 	tokens = tokenizer.tokenize(source)
-# 	for token in tokens:
-# 		print(token)
+from sctokenizer import PhpTokenizer
+from sctokenizer import CppTokenizer
+tokenizer = PhpTokenizer() # this object can be used for multiple source files
+with open('tests/data/aa.php') as f:
+	source = f.read()
+	tokens = tokenizer.tokenize(source)
+	for token in tokens:
+		print(token)
 
 # from sctokenizer import Source
 
-# src = Source.from_file('tests/data/hello_world.cpp', lang='cpp')
+# src = Source.from_file('tests/data/âa.cpp', lang='cpp')
 # tokens = src.tokenize()
 # for token in tokens:
 #     print(token)
 
-# test similarity
-from sctokenizer import Similarity
-simi = Similarity()
-sim = simi.get_similarity1("tests/data/a.cpp", "tests/data/b.cpp")
-print("sim1",sim)
-sim = simi.get_similarity2("tests/data/a.cpp", "tests/data/b.cpp")
-print("sim2",sim)
-sim = simi.get_similarity3("tests/data/a.cpp", "tests/data/b.cpp")
-print("sim3",sim)

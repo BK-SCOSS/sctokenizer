@@ -28,7 +28,7 @@ class Similarity:
         """
         new_tokens = []
         for token in tokens:
-            if token.token_type == TokenType.OPERATOR:
+            if token.token_type == TokenType.OPERATOR :
                 new_tokens.append(token)
         return new_tokens
     def get_vecfrec(self, file):
@@ -49,7 +49,7 @@ class Similarity:
         tokens = self.get_tokens(file)
         last = ['', '', '', '']
         for token in tokens:
-            if token.token_type == TokenType.OPERATOR:
+            if token.token_type == TokenType.OPERATOR :
                 for i in range(len(last)-1):
                     last[i] = last[i+1]
                 last[-1] = token.token_value
