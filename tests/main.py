@@ -11,17 +11,19 @@ sys.path.append(os.path.join(WORKING_DIR, '../../sctokenizer'))
 # for token in tokens:
 #     print(token)
 
-# from sctokenizer import CppTokenizer
-
-# tokenizer = CppTokenizer() # this object can be used for multiple source files
-# with open('tests/data/hello_world.cpp') as f:
-# 	source = f.read()
-# 	tokens = tokenizer.tokenize(source)
-# 	print(tokens)
+from sctokenizer import PhpTokenizer
+from sctokenizer import CppTokenizer
+tokenizer = PhpTokenizer() # this object can be used for multiple source files
+with open('tests/data/test_php.php') as f:
+	source = f.read()
+	tokens = tokenizer.tokenize(source)
+	for token in tokens:
+		print(token)
 
 from sctokenizer import Source
 
-src = Source.from_file('tests/data/hello_world.cpp')
-tokens = src.tokenize()
-for token in tokens:
-    print(token)
+# src = Source.from_file('tests/data/âa.cpp', lang='cpp')
+# tokens = src.tokenize()
+# for token in tokens:
+#     print(token)
+
