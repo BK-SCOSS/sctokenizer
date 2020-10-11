@@ -1,7 +1,7 @@
 # sctokenizer
 A Source Code Tokenizer
 
-Supports those languages: ```C, C++, Java, Python```
+Supports those languages: ```C, C++, Java, Python, PHP```
 
 ## How to install
 
@@ -41,7 +41,7 @@ for token in tokens:
     print(token)
 ```
 
-Results is a ```list``` of ```Token```. Each ```Token``` has four attributes including ```token_value, token_type, line, column```:
+Result is a ```list``` of ```Token```. Each ```Token``` has four attributes including ```token_value, token_type, line, column```:
 ```
 (#, TokenType.SPECIAL_SYMBOL, (1, 1))
 (include, TokenType.KEYWORD, (1, 2))
@@ -70,6 +70,6 @@ Results is a ```list``` of ```Token```. Each ```Token``` has four attributes inc
 ```
 
 ## TODO
-* Support other languages: ```PHP, Matlab, Javascript, Typescript,...```
+* Support other languages: ```Matlab, Javascript, Typescript,...```
 * Auto detect language
 * Parse source to a tree of tokens???

@@ -4,16 +4,19 @@ from sctokenizer.c_tokenizer import CTokenizer
 from sctokenizer.cpp_tokenizer import CppTokenizer
 from sctokenizer.java_tokenizer import JavaTokenizer
 from sctokenizer.python_tokenizer import PythonTokenizer
+from sctokenizer.php_tokenizer import PhpTokenizer
 
 import os
 
 LANG_MAP = {
-    'c': 'c',
-    'cpp': 'cpp',
     'cc': 'cpp',
-    'java': 'java',
-    'py': 'python'
+    'py': 'python',
 }
+
+def check_language(lang):
+    if lang in LANG_MAP:
+        return LANG_MAP[lang]
+    return lang
 
 class Source():
     def __init__(self, source_str, lang=None, name=None):
@@ -21,7 +24,7 @@ class Source():
         if lang is None:
             self.lang = self.detect_language(self.source_str)
         else:
-            self.lang = lang
+            self.lang = check_language(lang)
         self.name = name
     
     @classmethod
@@ -41,14 +44,23 @@ class Source():
 
 
     @classmethod
-    def from_str(cls, source_str, lang=None):
+    def from_str(cls, source_str, lang=None, name=None):
         """
             return the Source object
             :rtype: Source
         """
         if lang is None:
             lang = cls.detect_language(source_str)
-        return Source(source_str, lang)
+        return Source(source_str, lang, name)
+
+    def get_language(self):
+        return self.lang
+
+    def get_name(self):
+        return self.name
+
+    def get_source_str(self):
+        return self.source_str
 
     def tokenize(self):
         if self.lang == 'c':
@@ -63,6 +75,9 @@ class Source():
         elif self.lang == 'python':
             python_tokenizer = PythonTokenizer()
             return python_tokenizer.tokenize(self.source_str)
+        elif self.lang == 'php':
+            php_tokenizer = PhpTokenizer()
+            return php_tokenizer.tokenize(self.source_str)
         else:
             raise ValueError("Upsupported language")
 
