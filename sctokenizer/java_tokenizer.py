@@ -36,6 +36,7 @@ class JavaTokenizer(Tokenizer):
                 t += 1
             if cur == '\r':
                 if next == '\n':
+                    i += 1
                     continue
                 else: # Not sure about this part
                     # first_no_space = ''
