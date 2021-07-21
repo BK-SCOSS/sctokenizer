@@ -21,6 +21,7 @@ class CppTokenizer(Tokenizer):
         first_no_space = ''
         last_no_space = ''
         first_no_space_in_macro = ''
+        second_no_space_in_macro = ''
         first_no_space_in_word = ''
         cur = ''
         prev = ''
@@ -76,22 +77,26 @@ class CppTokenizer(Tokenizer):
                     continue
                 if cur != ' ' and cur != '\t' and first_no_space_in_macro == '':
                     first_no_space_in_macro = cur
+                    second_no_space_in_macro = next
                 # Check end of marco
                 if cur == '\n' and last_no_space != '\\':
                     state = TokenizerState.REGULAR
                     first_no_space_in_macro = ''
+                    second_no_space_in_macro = ''
 
                 # Can handle:
                 # include <bits/stdc++.h>
                 # define circleArea(r) (3.1415*(r)*(r))
                 # define PI 3.1415
                 # handle #include vs #define, undef, pragma
-                if first_no_space_in_macro == 'i':
+                if first_no_space_in_macro == 'i' and second_no_space_in_macro == 'n':
                     state = TokenizerState.IN_INCLUDE
                     first_no_space_in_macro = ''
+                    second_no_space_in_macro = ''
                 else:
                     state = TokenizerState.REGULAR
                     first_no_space_in_macro = ''
+                    second_no_space_in_macro = ''
                 if self.is_alpha(cur):
                     pending += cur
 
@@ -240,5 +245,3 @@ class CppTokenizer(Tokenizer):
         else:
             self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
         return tokens
-
-
