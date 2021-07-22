@@ -4,6 +4,7 @@ from sctokenizer.tokenizer import Tokenizer, TokenizerState
 from sctokenizer.assets.php_keywords import php_keyword_set
 from sctokenizer.assets.php_operators import php_operator_set
 from sctokenizer.token import TokenType, Token
+from icecream import ic
 
 class PhpTokenizer(Tokenizer):
     
@@ -53,6 +54,11 @@ class PhpTokenizer(Tokenizer):
                 if first_no_space_in_word == '':
                     first_no_space_in_word = cur
                     self.colnumber = i
+
+            ic(state)
+            ic(pending)
+            ic(cur)
+
             if state == TokenizerState.IN_COMMENT:
                 # Check end of block comment
                 if cur == '*':
@@ -79,8 +85,10 @@ class PhpTokenizer(Tokenizer):
                 else:
                     pending += cur
             elif state == TokenizerState.IN_NUMBER:
-                if (cur >= '0' and cur <= '9') or \
-                    cur == '.' or cur == 'E' or cur == 'e':
+                if (cur >= '0' and cur <= '9') or cur == '.' \
+                    or (cur >= 'A' and cur <= 'F') \
+                    or (cur >= 'a' and cur <= 'f') \
+                    or cur == 'X' or cur == 'x':
                     pending += cur
                     i += 1
                     continue
@@ -106,10 +114,19 @@ class PhpTokenizer(Tokenizer):
                         first_no_space_in_word = cur
                         self.colnumber = i
 
+                if len(pending) == 1 and not self.is_identifier(pending, ['_', '$']):
+                    self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
+                    pending = ''
+                    first_no_space_in_word = cur
+                    self.colnumber = i
+
                 if cur == '/':
                     if next == '*': # Begin block comments
                         state = TokenizerState.IN_COMMENT
-                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        if self.is_identifier(pending, ['_', '$']):
+                            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        else:
+                            self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                         pending = ''
                         first_no_space_in_word = ''
                         self.colnumber = i
@@ -118,7 +135,10 @@ class PhpTokenizer(Tokenizer):
                         continue
                     if next == '/': # Begin line comment
                         state = TokenizerState.IN_LINECOMMENT
-                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        if self.is_identifier(pending, ['_', '$']):
+                            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        else:
+                            self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                         pending = ''
                         first_no_space_in_word = ''
                         self.colnumber = i
@@ -129,7 +149,10 @@ class PhpTokenizer(Tokenizer):
                     if first_char_in_string == '':
                         first_char_in_string = cur
                     state = TokenizerState.IN_STRING
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending, ['_', '$']):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = ''
                     first_no_space_in_word = ''
                     self.colnumber = i
@@ -137,7 +160,10 @@ class PhpTokenizer(Tokenizer):
                 elif cur == '#':
                     # Begin line comment
                     state = TokenizerState.IN_LINECOMMENT
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending, ['_', '$']):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = ''
                     first_no_space_in_word = ''
                     self.colnumber = i
@@ -147,7 +173,10 @@ class PhpTokenizer(Tokenizer):
                 elif cur >= '0' and cur <= '9':
                     if first_no_space_in_word == cur:
                         state = TokenizerState.IN_NUMBER
-                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        if self.is_identifier(pending, ['_', '$']):
+                            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        else:
+                            self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                         # first_no_space_in_word = ''
                         pending = cur
                     else:
@@ -155,14 +184,20 @@ class PhpTokenizer(Tokenizer):
                 elif self.is_alpha(cur):
                     pending += cur
                 elif cur in self.operator_set: # cur = + - * / , ...
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending, ['_', '$']):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = cur
                     first_no_space_in_word = cur
                     self.colnumber = i
                 elif cur == '$':
                     pending += cur
                 else: # cur = ;, ', space
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending, ['_', '$']):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = ''
                     first_no_space_in_word = ''
                     if cur > ' ': 
@@ -171,8 +206,8 @@ class PhpTokenizer(Tokenizer):
             i += 1
         # End of the program
         # This need to be fixed in the future
-        if len(cur) > 1 or self.is_alpha(cur):
-            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t) 
+        if self.is_identifier(pending, ['_', '$']):
+            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
         else:
             self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
         return tokens

@@ -86,8 +86,10 @@ class PythonTokenizer(Tokenizer):
                 else:
                     pending += cur
             elif state == TokenizerState.IN_NUMBER:
-                if (cur >= '0' and cur <= '9') or \
-                    cur == '.' or cur == 'E' or cur == 'e':
+                if (cur >= '0' and cur <= '9') or cur == '.' \
+                    or (cur >= 'A' and cur <= 'F') \
+                    or (cur >= 'a' and cur <= 'f') \
+                    or cur == 'X' or cur == 'x':
                     pending += cur
                     i += 1
                     continue
@@ -113,6 +115,12 @@ class PythonTokenizer(Tokenizer):
                         first_no_space_in_word = cur
                         self.colnumber = i
 
+                if len(pending) == 1 and not self.is_identifier(pending):
+                    self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
+                    pending = ''
+                    first_no_space_in_word = cur
+                    self.colnumber = i
+
                 if (first_no_space == '"' or first_no_space == "'") and \
                     cur == first_no_space and \
                     next == first_no_space and \
@@ -121,7 +129,10 @@ class PythonTokenizer(Tokenizer):
                     if first_char_in_comment == '':
                         first_char_in_comment = cur
                     state = TokenizerState.IN_COMMENT
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = ''
                     first_no_space_in_word = ''
                     self.colnumber = i
@@ -132,7 +143,10 @@ class PythonTokenizer(Tokenizer):
                     if first_char_in_string == '':
                         first_char_in_string = cur
                     state = TokenizerState.IN_STRING
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = ''
                     first_no_space_in_word = ''
                     self.colnumber = i
@@ -140,7 +154,10 @@ class PythonTokenizer(Tokenizer):
                 elif cur == '#':
                     # Begin line comment
                     state = TokenizerState.IN_LINECOMMENT
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = ''
                     first_no_space_in_word = ''
                     self.colnumber = i
@@ -150,7 +167,10 @@ class PythonTokenizer(Tokenizer):
                 elif cur >= '0' and cur <= '9':
                     if first_no_space_in_word == cur:
                         state = TokenizerState.IN_NUMBER
-                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        if self.is_identifier(pending):
+                            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        else:
+                            self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                         # first_no_space_in_word = ''
                         pending = cur
                     else:
@@ -158,12 +178,18 @@ class PythonTokenizer(Tokenizer):
                 elif self.is_alpha(cur):
                     pending += cur
                 elif cur in self.operator_set: # cur = + - * / , ...
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = cur
                     first_no_space_in_word = cur
                     self.colnumber = i
                 else: # cur = ;, ', space
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = ''
                     first_no_space_in_word = ''
                     if cur > ' ': 
@@ -172,8 +198,8 @@ class PythonTokenizer(Tokenizer):
             i += 1
         # End of the program
         # This need to be fixed in the future
-        if len(cur) > 1 or self.is_alpha(cur):
-            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t) 
+        if self.is_identifier(pending):
+            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
         else:
             self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
         return tokens

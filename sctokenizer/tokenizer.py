@@ -42,5 +42,11 @@ class Tokenizer():
                 (cur >= 'A' and cur <= 'Z') or \
                 cur == '_' or ord(cur) > 127
 
+    def is_identifier(self, str, allow_symbols=['_']):
+        temp = str
+        for symbol in allow_symbols:
+            temp = temp.replace(symbol, '')
+        return temp.isalnum()
+
 
     
