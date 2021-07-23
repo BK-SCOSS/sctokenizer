@@ -86,8 +86,10 @@ class JavaTokenizer(Tokenizer):
                 else:
                     pending += cur
             elif state == TokenizerState.IN_NUMBER:
-                if (cur >= '0' and cur <= '9') or \
-                    cur == '.' or cur == 'E' or cur == 'e':
+                if (cur >= '0' and cur <= '9') or cur == '.' \
+                    or (cur >= 'A' and cur <= 'F') \
+                    or (cur >= 'a' and cur <= 'f') \
+                    or cur == 'X' or cur == 'x':
                     pending += cur
                     i += 1
                     # self.colnumber += 1
@@ -115,10 +117,19 @@ class JavaTokenizer(Tokenizer):
                         first_no_space_in_word = cur
                         self.colnumber = i
 
+                if len(pending) == 1 and not self.is_identifier(pending, ['_', '$']):
+                    self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
+                    pending = ''
+                    first_no_space_in_word = cur
+                    self.colnumber = i
+
                 if cur == '/':
                     if next == '*': # Begin block comments
                         state = TokenizerState.IN_COMMENT
-                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        if self.is_identifier(pending, ['_', '$']):
+                            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        else:
+                            self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                         pending = ''
                         first_no_space_in_word = ''
                         self.colnumber = i
@@ -127,7 +138,10 @@ class JavaTokenizer(Tokenizer):
                         continue
                     if next == '/': # Begin line comment
                         state = TokenizerState.IN_LINECOMMENT
-                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        if self.is_identifier(pending, ['_', '$']):
+                            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        else:
+                            self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                         pending = ''
                         first_no_space_in_word = ''
                         self.colnumber = i
@@ -136,14 +150,20 @@ class JavaTokenizer(Tokenizer):
                         continue
                 elif cur == '"':
                     state = TokenizerState.IN_STRING
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending, ['_', '$']):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = ''
                     first_no_space_in_word = ''
                     self.colnumber = i
                     self.add_pending(tokens, '"', TokenType.SPECIAL_SYMBOL, len_lines, t)
                 elif cur == "'":
                     state = TokenizerState.IN_CHAR
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending, ['_', '$']):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = ''
                     first_no_space_in_word = ''
                     self.colnumber = i
@@ -151,7 +171,10 @@ class JavaTokenizer(Tokenizer):
                 elif cur >= '0' and cur <= '9':
                     if first_no_space_in_word == cur:
                         state = TokenizerState.IN_NUMBER
-                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        if self.is_identifier(pending, ['_', '$']):
+                            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        else:
+                            self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                         # first_no_space_in_word = ''
                         pending = cur
                     else:
@@ -159,12 +182,18 @@ class JavaTokenizer(Tokenizer):
                 elif self.is_alpha(cur):
                     pending += cur
                 elif cur in self.operator_set: # cur = + - * / , ...
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending, ['_', '$']):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = cur
                     first_no_space_in_word = cur
                     self.colnumber = i
                 else: # cur = ;, ', space
-                    self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    if self.is_identifier(pending, ['_', '$']):
+                        self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                    else:
+                        self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                     pending = ''
                     first_no_space_in_word = ''
                     if cur > ' ': 
@@ -172,8 +201,8 @@ class JavaTokenizer(Tokenizer):
                         self.add_pending(tokens, cur, TokenType.SPECIAL_SYMBOL, len_lines, t)
             i += 1
         # is Java always ends with } ?
-        if len(cur) > 1 or self.is_alpha(cur):
-            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t) 
+        if self.is_identifier(pending, ['_', '$']):
+            self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
         else:
             self.add_pending(tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
         return tokens
