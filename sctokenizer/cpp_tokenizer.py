@@ -4,7 +4,6 @@ from sctokenizer.tokenizer import Tokenizer, TokenizerState
 from sctokenizer.assets.cpp_keywords import cpp_keyword_set
 from sctokenizer.assets.cpp_operators import cpp_operator_set
 from sctokenizer.token import TokenType, Token
-# from icecream import ic
 
 class CppTokenizer(Tokenizer):
     def __init__(self):

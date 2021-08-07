@@ -4,7 +4,6 @@ from sctokenizer.tokenizer import Tokenizer, TokenizerState
 from sctokenizer.assets.php_keywords import php_keyword_set
 from sctokenizer.assets.php_operators import php_operator_set
 from sctokenizer.token import TokenType, Token
-from icecream import ic
 
 class PhpTokenizer(Tokenizer):
     
