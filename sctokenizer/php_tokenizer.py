@@ -4,7 +4,6 @@ from sctokenizer.tokenizer import Tokenizer, TokenizerState
 from sctokenizer.assets.php_keywords import php_keyword_set
 from sctokenizer.assets.php_operators import php_operator_set
 from sctokenizer.token import TokenType, Token
-from icecream import ic
 
 class PhpTokenizer(Tokenizer):
     
@@ -54,10 +53,6 @@ class PhpTokenizer(Tokenizer):
                 if first_no_space_in_word == '':
                     first_no_space_in_word = cur
                     self.colnumber = i
-
-            ic(state)
-            ic(pending)
-            ic(cur)
 
             if state == TokenizerState.IN_COMMENT:
                 # Check end of block comment
