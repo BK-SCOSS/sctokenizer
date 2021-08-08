@@ -54,10 +54,6 @@ class PhpTokenizer(Tokenizer):
                     first_no_space_in_word = cur
                     self.colnumber = i
 
-            ic(state)
-            ic(pending)
-            ic(cur)
-
             if state == TokenizerState.IN_COMMENT:
                 # Check end of block comment
                 if cur == '*':
