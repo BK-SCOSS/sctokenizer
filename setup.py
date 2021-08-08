@@ -16,6 +16,6 @@ setup(name='sctokenizer',
       long_description_content_type="text/markdown",
       project_urls=PROJECT_URLS,
       author_email='ngocjr7@gmail.com',
-      version='0.0.5', 
+      version='0.0.7', 
       packages=find_packages(),
       python_requires='>=3.6')
