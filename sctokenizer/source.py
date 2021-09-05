@@ -5,6 +5,7 @@ from sctokenizer.cpp_tokenizer import CppTokenizer
 from sctokenizer.java_tokenizer import JavaTokenizer
 from sctokenizer.python_tokenizer import PythonTokenizer
 from sctokenizer.php_tokenizer import PhpTokenizer
+from guesslang import Guess
 
 import os
 import enum
@@ -25,6 +26,8 @@ class SourceState(enum.Enum):
     TOKENIZED = 2
 
 class Source():
+    lang_detector = Guess()
+    
     def __init__(self, source_str, lang=None, name=None):
         self.__state = SourceState.INIT
 
@@ -101,4 +104,8 @@ class Source():
             detect languge of source code
             :rtype: str
         """
-        return 'cpp'
+        lang = cls.lang_detector.language_name(source_str)
+        if lang == 'C++':
+            return 'cpp'
+        else:
+            return lang.lower()

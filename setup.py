@@ -9,6 +9,6 @@ setup(name='sctokenizer',
       long_description=long_description,
       long_description_content_type="text/markdown",
       author_email='ngocjr7@gmail.com',
-      version='0.0.2', 
+      version='0.0.8', 
       packages=find_packages(),
       python_requires='>=3.6')
