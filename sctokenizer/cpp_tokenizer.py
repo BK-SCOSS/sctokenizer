@@ -213,7 +213,6 @@ class CppTokenizer(Tokenizer):
                         first_no_space_in_word = ''
                         self.colnumber = i
                         self.add_pending(tokens, '/', TokenType.SPECIAL_SYMBOL, len_lines, t)
-                        continue
                 elif cur == '"':
                     state = TokenizerState.IN_STRING
                     if self.is_identifier(pending):
