@@ -196,7 +196,7 @@ class CppTokenizer(Tokenizer):
                         self.add_pending(tokens, '/*', TokenType.COMMENT_SYMBOL, len_lines, t)
                         i += 1
                         continue
-                    elif next == '/': # Begin line comment
+                    if next == '/': # Begin line comment
                         state = TokenizerState.IN_LINECOMMENT
                         if self.is_identifier(pending):
                             self.add_pending(tokens, pending, TokenType.IDENTIFIER, len_lines, t)
@@ -208,17 +208,6 @@ class CppTokenizer(Tokenizer):
                         self.add_pending(tokens, '//', TokenType.COMMENT_SYMBOL, len_lines, t)
                         i += 1
                         continue
-                    else:
-                        if self.is_identifier(pending):
-                            self.add_pending(
-                                tokens, pending, TokenType.IDENTIFIER, len_lines, t)
-                        else:
-                            self.add_pending(
-                                tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
-                        pending = ''
-                        first_no_space_in_word = ''
-                        self.colnumber = i
-                        self.add_pending(tokens, '/', TokenType.SPECIAL_SYMBOL, len_lines, t)
                 elif cur == '"':
                     state = TokenizerState.IN_STRING
                     if self.is_identifier(pending):
