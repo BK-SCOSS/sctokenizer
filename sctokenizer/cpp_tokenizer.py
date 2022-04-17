@@ -209,6 +209,12 @@ class CppTokenizer(Tokenizer):
                         i += 1
                         continue
                     else:
+                        if self.is_identifier(pending):
+                            self.add_pending(
+                                tokens, pending, TokenType.IDENTIFIER, len_lines, t)
+                        else:
+                            self.add_pending(
+                                tokens, pending, TokenType.SPECIAL_SYMBOL, len_lines, t)
                         pending = ''
                         first_no_space_in_word = ''
                         self.colnumber = i
