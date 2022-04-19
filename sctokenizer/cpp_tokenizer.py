@@ -61,7 +61,7 @@ class CppTokenizer(Tokenizer):
                     if next == '/':
                         self.colnumber = i
                         self.add_pending(tokens, '*/', TokenType.COMMENT_SYMBOL, len_lines, t)
-                        i += 1
+                        i += 2
                         state = TokenizerState.REGULAR
                         continue
 
