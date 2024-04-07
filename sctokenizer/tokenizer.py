@@ -46,7 +46,7 @@ class Tokenizer():
         temp = str
         for symbol in allow_symbols:
             temp = temp.replace(symbol, '')
-        return temp.isalnum()
+        return (len(str) > 0 and len(temp) == 0) or temp.isalnum()
 
 
     
