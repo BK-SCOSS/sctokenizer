@@ -24,12 +24,17 @@ class Tokenizer():
     def tokenize(self):
         pass
 
-    def add_pending(self, tokens, pending, token_type, len_lines, t):
+    def compute_line_starts(self, source_str):
+        lines = source_str.split('\n')
+        len_lines = [0]
+        for x in lines:
+            len_lines.append(len_lines[-1] + len(x) + 1)
+        return len_lines
+
+    def add_pending(self, tokens, pending, token_type, line_starts, t):
         if pending <= ' ':
             return
-        for k in range(t):
-            self.colnumber -= (len_lines[k] + 1)
-        
+        self.colnumber -= line_starts[t]
         if pending in self.operator_set:
             tokens.append(Token(pending, TokenType.OPERATOR, self.linenumber, self.colnumber + 1))
         elif pending in self.keyword_set:
